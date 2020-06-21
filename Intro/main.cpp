@@ -21,7 +21,7 @@ int main()
 	// - 64 specifies the register's size. For our example, the register is always 64 bits.
 	// - next, we get the bit offst by getting the modulus of our register offset
 	//
-	vtil::register_desc reg(vtil::register_virtual, 64, reg_size * 8, (reg_offs % 8) * 8);
+	vtil::register_desc reg(vtil::register_virtual, 64, reg_size, (reg_offs % 8) * 8);
 
 	// quite self explanatory :^)
 	// note that in VTIL, we can chain these calls for that super clean look!
