@@ -12,9 +12,8 @@ Open the project as folder in Visual Studio 2019 and let it generate the CMake f
 mkdir build
 cd build
 cmake ..
+cmake --build .
 ```
-
-You can now open the resulting `VTIL-Samples.sln` solution file in Visual Studio.
 
 ## Examples
 
