@@ -1,6 +1,6 @@
 # VTIL-Samples
 
-This repo contains a number of samples to get you started with VTILs API.
+This repository contains a number of samples to get you started with VTILs API.
 
 ## Building
 Open the project as folder in Visual Studio 2019 and let it generate the CMake files. Once the generation has ended you can launch the examples.  
