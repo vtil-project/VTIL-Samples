@@ -1,4 +1,4 @@
-﻿project("HelloWorld")
+﻿project(Logger)
 
 add_executable(${PROJECT_NAME} main.cpp)
 

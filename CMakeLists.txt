@@ -14,5 +14,5 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(VTIL-Core)
 
-add_subdirectory("Hello World")
+add_subdirectory(Logger)
 add_subdirectory(Intro)
