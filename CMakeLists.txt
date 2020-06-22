@@ -16,3 +16,4 @@ FetchContent_MakeAvailable(VTIL-Core)
 
 add_subdirectory(Logger)
 add_subdirectory(Intro)
+add_subdirectory(Simplification)
