@@ -24,3 +24,7 @@ This example demonstrates VTILs versatile logging capabilities.
 ### Intro
 
 A very basic example of VTILs `basic_block` functionality. Based on https://0xnobody.github.io/devirtualization-intro/
+
+### Simplification
+
+A short introduction into assembly simplification using VTILs optimizer passes.
