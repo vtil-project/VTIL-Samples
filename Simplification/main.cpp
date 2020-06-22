@@ -36,8 +36,8 @@ int main()
     vtil::logger::log("\n");
 
     vtil::optimizer::apply_each<
-            vtil::optimizer::profile_pass,
-            vtil::optimizer::collective_cross_pass
+        vtil::optimizer::profile_pass,
+        vtil::optimizer::collective_cross_pass
     >{}(block->owner);      // executes all optimization passes
 
     vtil::logger::log("\n");
