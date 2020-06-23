@@ -57,12 +57,12 @@ void handle_print(vtil::basic_block*& block)
 {
     block->ldd(x86_reg::X86_REG_AL, vtil::REG_SP, 0);
     block->vpinr(x86_reg::X86_REG_AL); // make sure this doesn't get optimized away
-    block->vemit('write');
+    block->vemit('.');
 }
 
 void handle_read(vtil::basic_block*& block)
 {
-    block->vemit('read');
+    block->vemit(',');
     block->vpinw(x86_reg::X86_REG_AL); // make sure this doesn't get optimized away
     block->str(vtil::REG_SP, 0, x86_reg::X86_REG_AL);
 }
