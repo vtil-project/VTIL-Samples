@@ -12,7 +12,7 @@ void handle_read(vtil::basic_block*& block);
 void handle_te(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
 void handle_tne(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
 void handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
-void update_branch(vtil::basic_block*& block, std::list<vtil::vip_t>& blocks);
+void update_branch(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
 
 void handle_inc(vtil::basic_block*& block)
 {
@@ -37,8 +37,8 @@ void handle_te(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t
     block->te(cond, tmp, 0);
     block->js(cond, ++pc, vtil::invalid_vip);
 
-    block = block->fork(pc);
     blocks.push_back(block->entry_vip);
+    block = block->fork(pc);
 }
 
 void handle_tne(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
@@ -48,8 +48,7 @@ void handle_tne(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_
     block->tne(cond, tmp, 0);
     block->js(cond, block->entry_vip, ++pc);
 
-    update_branch(block, blocks);
-
+    update_branch(block, pc, blocks);
     block = block->fork(pc);
 }
 
@@ -67,11 +66,12 @@ void handle_read(vtil::basic_block*& block)
     block->str(vtil::REG_SP, 0, x86_reg::X86_REG_AL);
 }
 
-void update_branch(vtil::basic_block*& block, std::list<vtil::vip_t>& blocks)
+void update_branch(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
 {
     auto matching_vip = blocks.back(); blocks.pop_back();
     auto matching_block = block->owner->explored_blocks[matching_vip];
-    matching_block->stream.back().operands[2].imm().u64 = block->entry_vip;
+    matching_block->stream.back().operands[2].imm().u64 = pc; // this is prob wrong?
+    block->fork(block->entry_vip); // link the previously undefined block
 }
 
 void handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
