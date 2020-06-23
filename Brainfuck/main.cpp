@@ -112,23 +112,19 @@ int main()
     auto block = vtil::basic_block::begin(0x0);
     auto blocks = std::list<vtil::vip_t>();
 
-    // allocate data memory
-    //block->shift_sp(-30); // TODO: is this even required?
-
     vtil::vip_t vip = 0;
     for(auto instruction : program)
     {
         handle_instruction(block, instruction, vip, blocks);
     }
 
-    block->vpinr(vtil::REG_SP);
-    block->vpinw(vtil::REG_SP);
     block->vexit(0ull);
 
     //block->owner->routine_convention = vtil::preserve_all_convention;
     //block->owner->routine_convention.purge_stack = false;
 
-    //vtil::optimizer::apply_all(block->owner);
+    /*vtil::optimizer::stack_pinning_pass{}(block->owner);
+    vtil::optimizer::symbolic_rewrite_pass<true>{}(block->owner);*/
 
     vtil::debug::dump(block->owner);
 }
