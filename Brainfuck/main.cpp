@@ -68,7 +68,7 @@ void update_branch(vtil::basic_block*& block, vtil::vip_t& vip, std::list<vtil::
 {
     auto matching_vip = blocks.back(); blocks.pop_back();
     auto matching_block = block->owner->explored_blocks[matching_vip];
-    matching_block->stream.back().operands[2].imm().u64 = vip; // this is prob wrong?
+    matching_block->stream.back().operands[2].imm().u64 = vip;
     block->fork(block->entry_vip); // link the previously undefined block
 }
 
@@ -158,5 +158,11 @@ int main(int argc, char* argv[])
     if(output)
     {
         vtil::save_routine(block->owner, output.value());
+        /*auto test = vtil::load_routine(output.value());
+        vtil::optimizer::apply_each<
+            vtil::optimizer::profile_pass,
+            vtil::optimizer::collective_pass
+        >{}(test);
+        vtil::debug::dump(test);*/
     }
 }
