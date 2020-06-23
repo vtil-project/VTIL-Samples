@@ -7,12 +7,12 @@ const std::string program = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>
 
 void handle_inc(vtil::basic_block*& block);
 void handle_dec(vtil::basic_block*& block);
-void handle_te(vtil::basic_block*& block, vtil::vip_t& pc);
 void handle_print(vtil::basic_block*& block);
 void handle_read(vtil::basic_block*& block);
-vtil::basic_block* handle_tne(vtil::basic_block*& block);
-vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc);
-vtil::basic_block* process_block(vtil::basic_block*& block, vtil::vip_t& pc);
+void handle_te(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
+void handle_tne(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
+void handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
+void update_branch(vtil::basic_block*& block, std::list<vtil::vip_t>& blocks);
 
 void handle_inc(vtil::basic_block*& block)
 {
@@ -30,49 +30,51 @@ void handle_dec(vtil::basic_block*& block)
     block->str(vtil::REG_SP, vtil::make_imm(0ull), current_value);
 }
 
-void handle_te(vtil::basic_block*& block, vtil::vip_t& pc)
+void handle_te(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
 {
     auto [tmp, cond] = block->tmp(8, 1);
     block->ldd(tmp, vtil::REG_SP, 0);
     block->te(cond, tmp, 0);
     block->js(cond, ++pc, vtil::invalid_vip);
 
-    auto branch_block = block->fork(pc);
-    process_block(branch_block, pc);
-
-    auto after_branch_block = block->fork(++pc);
-    auto tne_block = process_block(after_branch_block, pc);
-
-    block->stream.back().operands[2].imm().u64 = after_branch_block->entry_vip;
-
-    if(tne_block != nullptr) tne_block->stream.back().operands[2].imm().u64 = after_branch_block->entry_vip; // in case the program ends on one of the children
+    block = block->fork(pc);
+    blocks.push_back(block->entry_vip);
 }
 
-vtil::basic_block* handle_tne(vtil::basic_block*& block)
+void handle_tne(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
 {
     auto [tmp, cond] = block->tmp(8, 1);
     block->ldd(tmp, vtil::REG_SP, 0);
     block->tne(cond, tmp, 0);
-    block->js(cond, block->entry_vip, vtil::invalid_vip);
+    block->js(cond, block->entry_vip, ++pc);
 
-    return block;
+    update_branch(block, blocks);
+
+    block = block->fork(pc);
 }
 
 void handle_print(vtil::basic_block*& block)
 {
     block->ldd(x86_reg::X86_REG_AL, vtil::REG_SP, 0);
     block->vpinr(x86_reg::X86_REG_AL); // make sure this doesn't get optimized away
-    block->vemits("write");
+    block->vemit('write');
 }
 
 void handle_read(vtil::basic_block*& block)
 {
-    block->vemits("read");
+    block->vemit('read');
     block->vpinw(x86_reg::X86_REG_AL); // make sure this doesn't get optimized away
     block->str(vtil::REG_SP, 0, x86_reg::X86_REG_AL);
 }
 
-vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc)
+void update_branch(vtil::basic_block*& block, std::list<vtil::vip_t>& blocks)
+{
+    auto matching_vip = blocks.back(); blocks.pop_back();
+    auto matching_block = block->owner->explored_blocks[matching_vip];
+    matching_block->stream.back().operands[2].imm().u64 = block->entry_vip;
+}
+
+void handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
 {
     switch (program[pc])
     {
@@ -89,10 +91,10 @@ vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc
             handle_dec(block);
             break;
         case '[':
-            handle_te(block, pc);
+            handle_te(block, pc, blocks);
             break;
         case ']':
-            return handle_tne(block);
+            handle_tne(block, pc, blocks);
         case '.':
             handle_print(block);
             break;
@@ -102,35 +104,24 @@ vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc
         default:
             break;
     }
-
-    return nullptr;
-}
-
-vtil::basic_block* process_block(vtil::basic_block*& block, vtil::vip_t& pc)
-{
-    for(; pc < program.size(); ++pc)
-    {
-        auto tne_block = handle_instruction(block, pc);
-        if(tne_block != nullptr) return tne_block;
-    }
-
-    return nullptr;
 }
 
 int main()
 {
     auto block = vtil::basic_block::begin(0x0);
+    auto blocks = std::list<vtil::vip_t>();
 
     // allocate data memory
-    block->shift_sp(-30); // TODO: is this even required?
+    //block->shift_sp(-30); // TODO: is this even required?
 
-    vtil::vip_t pc = 0;
-    process_block(block, pc);
+    for(vtil::vip_t pc = 0; pc < program.size(); ++pc)
+    {
+        handle_instruction(block, pc, blocks);
+    }
 
-    auto end_block = block->fork(program.size());
-    end_block->vpinr(vtil::REG_SP);
-    end_block->vpinw(vtil::REG_SP);
-    end_block->vexit(0ull);
+    block->vpinr(vtil::REG_SP);
+    block->vpinw(vtil::REG_SP);
+    block->vexit(0ull);
 
     //block->owner->routine_convention = vtil::preserve_all_convention;
     //block->owner->routine_convention.purge_stack = false;
