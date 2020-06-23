@@ -148,6 +148,11 @@ int main(int argc, char* argv[])
     /*vtil::optimizer::stack_pinning_pass{}(block->owner);
     vtil::optimizer::symbolic_rewrite_pass<true>{}(block->owner);*/
 
+    /*vtil::optimizer::apply_each<
+        vtil::optimizer::profile_pass,
+        vtil::optimizer::collective_pass
+    >{}(block->owner);*/
+
     vtil::debug::dump(block->owner);
 
     if(output)
