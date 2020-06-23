@@ -3,16 +3,17 @@
 
 #pragma comment(linker, "/STACK:67108864")
 
+//                              0       1       2                 3      4 5                        6
 const std::string program = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
 
 void handle_inc(vtil::basic_block*& block);
 void handle_dec(vtil::basic_block*& block);
 void handle_print(vtil::basic_block*& block);
 void handle_read(vtil::basic_block*& block);
-void handle_te(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
-void handle_tne(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
-void handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
-void update_branch(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks);
+void handle_te(vtil::basic_block*& block, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks);
+void handle_tne(vtil::basic_block*& block, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks);
+void handle_instruction(vtil::basic_block*& block, char instruction, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks);
+void update_branch(vtil::basic_block*& block, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks);
 
 void handle_inc(vtil::basic_block*& block)
 {
@@ -30,26 +31,26 @@ void handle_dec(vtil::basic_block*& block)
     block->str(vtil::REG_SP, vtil::make_imm(0ull), current_value);
 }
 
-void handle_te(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
+void handle_te(vtil::basic_block*& block, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks)
 {
     auto [tmp, cond] = block->tmp(8, 1);
     block->ldd(tmp, vtil::REG_SP, 0);
     block->te(cond, tmp, 0);
-    block->js(cond, ++pc, vtil::invalid_vip);
+    block->js(cond, ++vip, vtil::invalid_vip);
 
     blocks.push_back(block->entry_vip);
-    block = block->fork(pc);
+    block = block->fork(vip);
 }
 
-void handle_tne(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
+void handle_tne(vtil::basic_block*& block, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks)
 {
     auto [tmp, cond] = block->tmp(8, 1);
     block->ldd(tmp, vtil::REG_SP, 0);
     block->tne(cond, tmp, 0);
-    block->js(cond, block->entry_vip, ++pc);
+    block->js(cond, block->entry_vip, ++vip);
 
-    update_branch(block, pc, blocks);
-    block = block->fork(pc);
+    update_branch(block, vip, blocks);
+    block = block->fork(vip);
 }
 
 void handle_print(vtil::basic_block*& block)
@@ -66,17 +67,17 @@ void handle_read(vtil::basic_block*& block)
     block->str(vtil::REG_SP, 0, x86_reg::X86_REG_AL);
 }
 
-void update_branch(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
+void update_branch(vtil::basic_block*& block, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks)
 {
     auto matching_vip = blocks.back(); blocks.pop_back();
     auto matching_block = block->owner->explored_blocks[matching_vip];
-    matching_block->stream.back().operands[2].imm().u64 = pc; // this is prob wrong?
+    matching_block->stream.back().operands[2].imm().u64 = vip; // this is prob wrong?
     block->fork(block->entry_vip); // link the previously undefined block
 }
 
-void handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vtil::vip_t>& blocks)
+void handle_instruction(vtil::basic_block*& block, char instruction, vtil::vip_t& vip, std::list<vtil::vip_t>& blocks)
 {
-    switch (program[pc])
+    switch (instruction)
     {
         case '>':
             block->add(vtil::REG_SP, 1);
@@ -91,10 +92,10 @@ void handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc, std::list<vt
             handle_dec(block);
             break;
         case '[':
-            handle_te(block, pc, blocks);
+            handle_te(block, vip, blocks);
             break;
         case ']':
-            handle_tne(block, pc, blocks);
+            handle_tne(block, vip, blocks);
         case '.':
             handle_print(block);
             break;
@@ -114,9 +115,10 @@ int main()
     // allocate data memory
     //block->shift_sp(-30); // TODO: is this even required?
 
-    for(vtil::vip_t pc = 0; pc < program.size(); ++pc)
+    vtil::vip_t vip = 0;
+    for(auto instruction : program)
     {
-        handle_instruction(block, pc, blocks);
+        handle_instruction(block, instruction, vip, blocks);
     }
 
     block->vpinr(vtil::REG_SP);
