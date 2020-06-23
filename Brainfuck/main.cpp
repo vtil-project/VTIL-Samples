@@ -3,8 +3,14 @@
 
 #pragma comment(linker, "/STACK:67108864")
 
-//const std::string hello_world = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
-const std::string hello_world = "[>>>>>---]+";
+const std::string program = "[+[-]+]";
+
+void handle_inc(vtil::basic_block*& block);
+void handle_dec(vtil::basic_block*& block);
+void handle_te(vtil::basic_block*& block, vtil::vip_t& pc);
+vtil::basic_block* handle_tne(vtil::basic_block*& block);
+vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc);
+vtil::basic_block* process_block(vtil::basic_block*& block, vtil::vip_t& pc);
 
 void handle_inc(vtil::basic_block*& block)
 {
@@ -22,17 +28,37 @@ void handle_dec(vtil::basic_block*& block)
     block->str(vtil::REG_SP, vtil::make_imm(0ull), current_value);
 }
 
-void handle_js(vtil::basic_block*& block)
+void handle_te(vtil::basic_block*& block, vtil::vip_t& pc)
 {
     auto [tmp, cond] = block->tmp(8, 1);
     block->ldd(tmp, vtil::REG_SP, 0);
     block->te(cond, tmp, 0);
-    block->js(cond, vtil::invalid_vip, vtil::invalid_vip);
+    block->js(cond, ++pc, vtil::invalid_vip);
+
+    auto branch_block = block->fork(pc);
+    process_block(branch_block, pc);
+
+    auto after_branch_block = block->fork(++pc);
+    auto tne_block = process_block(after_branch_block, pc);
+
+    block->stream.back().operands[2].imm().u64 = after_branch_block->entry_vip;
+
+    if(tne_block != nullptr) tne_block->stream.back().operands[2].imm().u64 = after_branch_block->entry_vip; // in case the program ends on one of the children
 }
 
-void handle_instruction(char instruction, vtil::basic_block*& block)
+vtil::basic_block* handle_tne(vtil::basic_block*& block)
 {
-    switch (instruction)
+    auto [tmp, cond] = block->tmp(8, 1);
+    block->ldd(tmp, vtil::REG_SP, 0);
+    block->tne(cond, tmp, 0);
+    block->js(cond, block->entry_vip, vtil::invalid_vip);
+
+    return block;
+}
+
+vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc)
+{
+    switch (program[pc])
     {
         case '>':
             block->add(vtil::REG_SP, 1);
@@ -47,13 +73,26 @@ void handle_instruction(char instruction, vtil::basic_block*& block)
             handle_dec(block);
             break;
         case '[':
-            handle_js(block);
+            handle_te(block, pc);
             break;
         case ']':
-            break;
+            return handle_tne(block);
         default:
             break;
     }
+
+    return nullptr;
+}
+
+vtil::basic_block* process_block(vtil::basic_block*& block, vtil::vip_t& pc)
+{
+    for(; pc < program.size(); ++pc)
+    {
+        auto tne_block = handle_instruction(block, pc);
+        if(tne_block != nullptr) return tne_block;
+    }
+
+    return nullptr;
 }
 
 int main()
@@ -63,14 +102,16 @@ int main()
     // allocate data memory
     block->shift_sp(-30); // TODO: is this even required?
 
-    for(auto instruction : hello_world)
-    {
-        handle_instruction(instruction, block);
-    }
+    vtil::vip_t pc = 0;
+    process_block(block, pc);
 
-    block->vpinr(vtil::REG_SP);
-    block->vpinw(vtil::REG_SP);
-    block->vexit(0ull);
+    auto end_block = block->fork(program.size());
+    end_block->vpinr(vtil::REG_SP);
+    end_block->vpinw(vtil::REG_SP);
+    end_block->vexit(0ull);
+
+    //block->owner->routine_convention = vtil::preserve_all_convention;
+    //block->owner->routine_convention.purge_stack = false;
 
     //vtil::optimizer::apply_all(block->owner);
 
