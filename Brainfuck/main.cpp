@@ -142,27 +142,20 @@ int main(int argc, char* argv[])
 
     block->vexit(0ull);
 
-    //block->owner->routine_convention = vtil::preserve_all_convention;
-    //block->owner->routine_convention.purge_stack = false;
+    vtil::logger::log("Lifted! Running optimizations...\n\n");
 
-    /*vtil::optimizer::stack_pinning_pass{}(block->owner);
-    vtil::optimizer::symbolic_rewrite_pass<true>{}(block->owner);*/
-
-    /*vtil::optimizer::apply_each<
+    vtil::optimizer::apply_each<
         vtil::optimizer::profile_pass,
         vtil::optimizer::collective_pass
-    >{}(block->owner);*/
+    >{}(block->owner);
+
+    vtil::logger::log("\nOptimizations applied! Here's the VTIL:\n\n");
 
     vtil::debug::dump(block->owner);
 
     if(output)
     {
+        vtil::logger::log("\nSaving VTIL to %s:", output.value());
         vtil::save_routine(block->owner, output.value());
-        /*auto test = vtil::load_routine(output.value());
-        vtil::optimizer::apply_each<
-            vtil::optimizer::profile_pass,
-            vtil::optimizer::collective_pass
-        >{}(test);
-        vtil::debug::dump(test);*/
     }
 }
