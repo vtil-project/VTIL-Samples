@@ -110,7 +110,7 @@ std::pair<std::string, std::optional<std::string>> handle_arguments(int argc, ch
     {
         vtil::logger::error(
                 "%s\n%s\n",
-                "Missing argument! Usage:"
+                "Missing argument! Usage:",
                 "Brainfuck.exe path_to_brainfuck_program.bf [path_to_output_vtil.vtil]");
     }
     else
