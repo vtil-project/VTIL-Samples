@@ -3,11 +3,13 @@
 
 #pragma comment(linker, "/STACK:67108864")
 
-const std::string program = "[+[-]+]";
+const std::string program = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
 
 void handle_inc(vtil::basic_block*& block);
 void handle_dec(vtil::basic_block*& block);
 void handle_te(vtil::basic_block*& block, vtil::vip_t& pc);
+void handle_print(vtil::basic_block*& block);
+void handle_read(vtil::basic_block*& block);
 vtil::basic_block* handle_tne(vtil::basic_block*& block);
 vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc);
 vtil::basic_block* process_block(vtil::basic_block*& block, vtil::vip_t& pc);
@@ -56,6 +58,20 @@ vtil::basic_block* handle_tne(vtil::basic_block*& block)
     return block;
 }
 
+void handle_print(vtil::basic_block*& block)
+{
+    block->ldd(x86_reg::X86_REG_AL, vtil::REG_SP, 0);
+    block->vpinr(x86_reg::X86_REG_AL); // make sure this doesn't get optimized away
+    block->vemits("write");
+}
+
+void handle_read(vtil::basic_block*& block)
+{
+    block->vemits("read");
+    block->vpinw(x86_reg::X86_REG_AL); // make sure this doesn't get optimized away
+    block->str(vtil::REG_SP, 0, x86_reg::X86_REG_AL);
+}
+
 vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc)
 {
     switch (program[pc])
@@ -77,6 +93,12 @@ vtil::basic_block* handle_instruction(vtil::basic_block*& block, vtil::vip_t& pc
             break;
         case ']':
             return handle_tne(block);
+        case '.':
+            handle_print(block);
+            break;
+        case ',':
+            handle_read(block);
+            break;
         default:
             break;
     }
