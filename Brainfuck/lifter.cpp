@@ -2,7 +2,7 @@
 
 using namespace bf;
 
-lifter::lifter(std::string program) : m_program(std::move(program)), m_block(nullptr), m_vip(0) {};
+lifter::lifter(std::string program) : m_program(std::move(program)), m_block(nullptr), m_vip(0) {}
 
 void lifter::lift()
 {
