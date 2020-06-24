@@ -93,6 +93,7 @@ void handle_instruction(vtil::basic_block*& block, char instruction, vtil::vip_t
             break;
         case ']':
             handle_tne(block, vip, blocks);
+            break;
         case '.':
             handle_print(block);
             break;
