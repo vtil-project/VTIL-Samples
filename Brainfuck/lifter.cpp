@@ -6,7 +6,7 @@ lifter::lifter(std::string program) : m_program(std::move(program)), m_block(nul
 
 void lifter::lift()
 {
-    m_block = vtil::basic_block::begin(0x0);
+    m_block = vtil::basic_block::begin(m_vip);
     m_branches = std::list<vtil::vip_t>();
 
     for(auto instruction : m_program)
