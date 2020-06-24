@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 
     if(output)
     {
-        vtil::logger::log("\nSaving VTIL to %s:", output.value());
+        vtil::logger::log("\nSaving VTIL to %s", output.value());
         vtil::save_routine(block->owner, output.value());
     }
 }
