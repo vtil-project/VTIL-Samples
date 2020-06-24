@@ -12,6 +12,7 @@ namespace bf
         void optimize();
         void dump();
         void save(std::string path);
+        vtil::routine* get_routine();
     private:
         std::string m_program;
         vtil::basic_block* m_block;

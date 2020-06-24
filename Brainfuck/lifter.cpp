@@ -40,6 +40,11 @@ void lifter::save(std::string path)
     vtil::save_routine(m_block->owner, path);
 }
 
+vtil::routine* lifter::get_routine()
+{
+    return m_block->owner;
+}
+
 void lifter::handle_instruction(char instruction)
 {
     switch (instruction)
