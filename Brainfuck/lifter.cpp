@@ -99,7 +99,7 @@ void lifter::handle_te()
     auto [tmp, cond] = m_block->tmp(8, 1);
     m_block->ldd(tmp, vtil::REG_SP, 0);
     m_block->te(cond, tmp, 0);
-    m_block->js(cond, vtil::invalid_vip, ++m_vip); // TODO: ++m_vip link is wrong; should match to [
+    m_block->js(cond, vtil::invalid_vip, ++m_vip);
 
     m_branches.push_back(m_block->entry_vip);
     m_block = m_block->fork(m_vip);
