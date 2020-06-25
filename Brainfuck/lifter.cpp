@@ -110,7 +110,7 @@ void lifter::handle_tne()
     auto [tmp, cond] = m_block->tmp(8, 1);
     m_block->ldd(tmp, vtil::REG_SP, 0);
     m_block->tne(cond, tmp, 0);
-    m_block->js(cond, m_block->entry_vip, ++m_vip); // TODO: m_block->entry_vip link is wrong; should match [
+    m_block->js(cond, vtil::invalid_vip, ++m_vip);
 
     update_branch();
     m_block = m_block->fork(m_vip);
@@ -134,8 +134,9 @@ void lifter::update_branch()
 {
     auto matching_vip = m_branches.back(); m_branches.pop_back();
     auto matching_block = m_block->owner->explored_blocks[matching_vip];
-    auto lol = matching_block->stream.back().operands[2].imm().u64;
     matching_block->stream.back().operands[1].imm().u64 = m_vip;
-    //m_block->stream.back().operands[1].imm().u64 = matching_vip; // ??
+    //matching_block->fork(m_vip); // link the previously undefined block
+    m_block->stream.back().operands[1].imm().u64 = matching_vip + 1;
+    //m_block->fork(matching_vip + 1); // link the previously undefined block
     m_block->fork(m_block->entry_vip); // link the previously undefined block
 }
