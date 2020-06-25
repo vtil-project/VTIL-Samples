@@ -42,6 +42,9 @@ void lifter::save(std::string path)
 
 vtil::routine* lifter::get_routine()
 {
+    m_block->owner->routine_convention = vtil::amd64::preserve_all_convention;
+    m_block->owner->routine_convention.purge_stack = false;
+
     return m_block->owner;
 }
 
