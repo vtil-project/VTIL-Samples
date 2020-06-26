@@ -41,6 +41,6 @@ int main(int argc, char* argv[])
 
     auto routine = lifter.get_routine();
 
-    bf::vm vm(routine);
+    bf::vm vm(routine, true);
     vm.execute();
 }
