@@ -11,6 +11,7 @@ vm::vm(vtil::routine* routine, bool debug) : m_routine(routine), m_debug(debug)
 void vm::execute()
 {
     auto it = m_routine->entry_point->begin();
+    m_vm.write_register(vtil::REG_SP, 0); // meme?
 
     while(true)
     {
