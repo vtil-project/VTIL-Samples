@@ -2,11 +2,12 @@
 
 using namespace bf;
 
-lifter::lifter(std::string program) : m_program(std::move(program)), m_block(nullptr), m_vip(0) {}
+lifter::lifter(std::string program) : m_program(std::move(program)), m_block(nullptr), m_vip(0), m_routine(nullptr) {}
 
 void lifter::lift()
 {
     m_block = vtil::basic_block::begin(m_vip);
+    m_routine = m_block->owner;
     m_branches = std::list<vtil::vip_t>();
 
     for(auto instruction : m_program)
@@ -42,10 +43,10 @@ void lifter::save(std::string path)
 
 vtil::routine* lifter::get_routine()
 {
-    m_block->owner->routine_convention = vtil::amd64::preserve_all_convention;
-    m_block->owner->routine_convention.purge_stack = false;
+    m_routine->routine_convention = vtil::amd64::preserve_all_convention;
+    m_routine->routine_convention.purge_stack = false;
 
-    return m_block->owner;
+    return m_routine;
 }
 
 void lifter::handle_instruction(char instruction)

@@ -18,6 +18,7 @@ namespace bf
         vtil::basic_block* m_block;
         vtil::vip_t m_vip;
         std::list<vtil::vip_t> m_branches;
+        vtil::routine* m_routine;
 
         void handle_instruction(char instruction);
         void handle_inc();

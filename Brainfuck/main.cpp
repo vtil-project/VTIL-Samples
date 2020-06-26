@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
     bf::lifter lifter(program);
     lifter.lift();
-    //lifter.optimize();
+    lifter.optimize();
     lifter.dump();
 
     if(output) lifter.save(output.value());
