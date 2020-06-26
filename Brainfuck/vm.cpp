@@ -49,7 +49,8 @@ void vm::initialize_hooks()
 
         if (*instruction.base == vtil::ins::vemit)
         {
-            switch(instruction.operands[0].imm().u64)
+            auto bf_instruction = instruction.operands[0].imm().u64;
+            switch(bf_instruction)
             {
                 case '.': print(); break;
                 case ',': read(); break;
