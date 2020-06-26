@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     {
         auto sp_offset = (vm.read_register(vtil::REG_SP) - vtil::symbolic::make_register_ex(vtil::REG_SP)).get<uint64_t>().value();
         auto sp_value = vm.read_memory(vm.read_register(vtil::REG_SP), 1).get<uint8_t>().value_or(0xff);
-        vtil::logger::log("%-50s | [SP+%d] => %d\n", ins, sp_offset, sp_value);
+        //vtil::logger::log("%-50s | [SP+%d] => %d\n", ins, sp_offset, sp_value);
 
         if (*ins.base == vtil::ins::vemit)
         {
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     auto it = routine->entry_point->begin();
     while(true)
     {
-        vtil::logger::log("Executing block %d\n", it.container->entry_vip);
+        //vtil::logger::log("Executing block %d\n", it.container->entry_vip);
 
         auto lim = vm.run(it, true);
         if(lim.is_end()) break;

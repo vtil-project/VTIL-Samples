@@ -22,6 +22,9 @@ void lifter::lift()
 
 void lifter::optimize()
 {
+    m_routine->routine_convention = vtil::amd64::preserve_all_convention;
+    m_routine->routine_convention.purge_stack = false;
+
     vtil::optimizer::apply_each<
             vtil::optimizer::profile_pass,
             vtil::optimizer::collective_pass
@@ -43,9 +46,6 @@ void lifter::save(std::string path)
 
 vtil::routine* lifter::get_routine()
 {
-    m_routine->routine_convention = vtil::amd64::preserve_all_convention;
-    m_routine->routine_convention.purge_stack = false;
-
     return m_routine;
 }
 
