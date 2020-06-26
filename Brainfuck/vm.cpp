@@ -94,5 +94,6 @@ void vm::read()
 {
     auto reg = vtil::operand{x86_reg::X86_REG_AL}.reg();
     auto character = getc(stdin);
+    std::cin.ignore(INT_MAX, '\n'); // flush buffer to ignore \n character. NOTE: need to check if this interferes with a single \n as well
     m_vm.write_register(reg, vtil::symbolic::expression{character, 8});
 }
