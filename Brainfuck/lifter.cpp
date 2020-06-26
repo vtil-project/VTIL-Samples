@@ -36,11 +36,12 @@ void lifter::optimize()
 void lifter::dump()
 {
     vtil::debug::dump(m_routine);
+    vtil::logger::log("\n\n");
 }
 
 void lifter::save(std::string path)
 {
-    vtil::logger::log("\nSaving VTIL to %s\n\n", path);
+    vtil::logger::log("Saving VTIL to %s\n\n", path);
     vtil::save_routine(m_routine, path);
 }
 
