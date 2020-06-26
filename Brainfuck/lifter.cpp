@@ -25,20 +25,20 @@ void lifter::optimize()
     vtil::optimizer::apply_each<
             vtil::optimizer::profile_pass,
             vtil::optimizer::collective_pass
-    >{}(m_block->owner);
+    >{}(m_routine);
 
     vtil::logger::log("\nOptimizations applied! Here's the VTIL:\n\n");
 }
 
 void lifter::dump()
 {
-    vtil::debug::dump(m_block->owner);
+    vtil::debug::dump(m_routine);
 }
 
 void lifter::save(std::string path)
 {
     vtil::logger::log("\nSaving VTIL to %s\n\n", path);
-    vtil::save_routine(m_block->owner, path);
+    vtil::save_routine(m_routine, path);
 }
 
 vtil::routine* lifter::get_routine()
