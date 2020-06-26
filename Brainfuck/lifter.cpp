@@ -17,7 +17,7 @@ void lifter::lift()
 
     m_block->vexit(0ull);
 
-    vtil::logger::log("Lifted! Running optimizations...\n\n");
+    vtil::logger::log("Finished lifting to VTIL!\n\n");
 }
 
 void lifter::optimize()
@@ -30,7 +30,7 @@ void lifter::optimize()
             vtil::optimizer::collective_pass
     >{}(m_routine);
 
-    vtil::logger::log("\nOptimizations applied! Here's the VTIL:\n\n");
+    vtil::logger::log("Optimizations applied! Here's the VTIL:\n\n");
 }
 
 void lifter::dump()
