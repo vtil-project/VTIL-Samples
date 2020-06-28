@@ -24,7 +24,7 @@ std::pair<std::string, std::optional<std::string>> handle_arguments(int argc, ch
         std::optional<std::string> output = std::nullopt;
         if(argc == 3) output = std::make_optional(argv[2]);
 
-        return {program, output};
+        return { program, output };
     }
 }
 
@@ -34,13 +34,13 @@ int main(int argc, char* argv[])
 
     bf::lifter lifter(program);
     lifter.lift();
-    //lifter.optimize();
+    lifter.optimize();
     lifter.dump();
 
     if(output) lifter.save(output.value());
 
     auto routine = lifter.get_routine();
 
-    bf::vm vm(routine);
-    vm.execute();
+    bf::vm vm;
+    vm.execute(routine);
 }
