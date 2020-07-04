@@ -6,12 +6,29 @@ This repository contains a number of samples to get you started with VTILs API.
 
 Open the project as folder in Visual Studio 2019 and let it generate the CMake files. Once the generation has ended you can launch the examples.  
 
-## Building (command line)
+## Building (macos)
+
+First install LLVM 10 and Ninja:
 
 ```sh
-mkdir build
-cd build
-cmake ..
+brew install llvm@10 ninja
+```
+
+Then set your compiler environment to use libc++ and brew's llvm:
+
+```sh
+export CC="/usr/local/opt/llvm/bin/clang"
+export CXX="/usr/local/opt/llvm/bin/clang++"
+export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+```
+
+Then clone the repo and build:
+
+```sh
+git clone https://github.com/vtil-project/VTIL-Samples
+cd VTIL-Samples
+mkdir build && cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
