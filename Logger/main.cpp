@@ -1,4 +1,6 @@
 ﻿#include <vtil/io>
+#include <vector>
+#include <string>
 
 int main()
 {
