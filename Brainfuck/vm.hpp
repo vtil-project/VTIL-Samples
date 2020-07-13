@@ -18,11 +18,11 @@ namespace bf
         std::vector<uint8_t> m_stack_state;
         std::map<vtil::register_desc, uint64_t> m_register_state;
 
-        vtil::symbolic::expression read_register(const vtil::register_desc& desc) override;
-        void write_register(const vtil::register_desc& desc, vtil::symbolic::expression value) override;
+        vtil::symbolic::expression::reference read_register(const vtil::register_desc& desc) override;
+        void write_register(const vtil::register_desc& desc, vtil::symbolic::expression::reference value) override;
 
-        vtil::symbolic::expression read_memory(const vtil::symbolic::expression& pointer, size_t byte_count) override;
-        void write_memory(const vtil::symbolic::expression& pointer, vtil::symbolic::expression value) override;
+        vtil::symbolic::expression::reference read_memory(const vtil::symbolic::expression::reference& pointer, size_t byte_count) override;
+        void write_memory(const vtil::symbolic::expression::reference& pointer, vtil::symbolic::expression::reference value) override;
 
         uint8_t& reference_io_port();
 
