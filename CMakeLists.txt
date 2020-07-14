@@ -2,9 +2,6 @@
 
 project(VTIL-Samples)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED true)
-
 include(FetchContent)
 
 FetchContent_Declare(

@@ -12,7 +12,7 @@ bool vm::execute(const vtil::instruction& instruction)
     if(m_debug)
     {
         auto sp_offset = m_register_state[vtil::REG_SP];
-        auto sp_value = read_memory(sp_offset, 1).get<uint8_t>().value();
+        auto sp_value = read_memory(sp_offset, 1)->get<uint8_t>().value();
         vtil::logger::log("%-50s | [SP+%d] => %d\n", instruction, sp_offset, sp_value);
     }
 
@@ -60,7 +60,7 @@ void vm::execute(const vtil::routine* routine)
             auto reg = lim->operands[0].reg();
             auto true_condition = lim->operands[1].imm().u64;
             auto false_condition = lim->operands[2].imm().u64;
-            it = read_register(reg).get<bool>().value()
+            it = read_register(reg)->get<bool>().value()
                  ? routine->explored_blocks.find(true_condition)->second->begin()
                  : routine->explored_blocks.find(false_condition)->second->begin();
         }
@@ -70,7 +70,7 @@ void vm::execute(const vtil::routine* routine)
     }
 }
 
-vtil::symbolic::expression vm::read_register(const vtil::register_desc& desc)
+vtil::symbolic::expression::reference vm::read_register(const vtil::register_desc& desc)
 {
     vtil::register_desc full = { desc.flags, desc.local_id, size_register(desc), 0, desc.architecture };
 
@@ -78,18 +78,18 @@ vtil::symbolic::expression vm::read_register(const vtil::register_desc& desc)
     return { (value >> desc.bit_offset) & vtil::math::fill(desc.bit_count), desc.bit_count };
 }
 
-void vm::write_register(const vtil::register_desc& desc, vtil::symbolic::expression value)
+void vm::write_register(const vtil::register_desc& desc, vtil::symbolic::expression::reference value)
 {
     vtil::register_desc full = { desc.flags, desc.local_id, size_register(desc), 0, desc.architecture };
 
     auto& rvalue = m_register_state[full];
     rvalue &= ~desc.get_mask();
-    rvalue |= ((value.get().value() & vtil::math::fill(desc.bit_count)) << desc.bit_offset);
+    rvalue |= ((value->get().value() & vtil::math::fill(desc.bit_count)) << desc.bit_offset);
 }
 
-vtil::symbolic::expression vm::read_memory(const vtil::symbolic::expression& pointer, size_t byte_count)
+vtil::symbolic::expression::reference vm::read_memory(const vtil::symbolic::expression::reference& pointer, size_t byte_count)
 {
-    auto ptr = pointer.value.get().value();
+    auto ptr = pointer->get().value();
 
     if(m_stack_state.size() < ptr + byte_count)
         m_stack_state.resize(ptr + byte_count);
@@ -100,15 +100,15 @@ vtil::symbolic::expression vm::read_memory(const vtil::symbolic::expression& poi
     return { qword, vtil::math::narrow_cast<bitcnt_t>(byte_count * 8) };
 }
 
-void vm::write_memory(const vtil::symbolic::expression& pointer, vtil::symbolic::expression value)
+void vm::write_memory(const vtil::symbolic::expression::reference& pointer, vtil::symbolic::expression::reference value)
 {
-    auto ptr = pointer.value.get<uint64_t>().value();
+    auto ptr = pointer->value.get<uint64_t>().value();
     auto byte_count = value.size() / 8;
 
     if(m_stack_state.size() < ptr + byte_count)
         m_stack_state.resize(ptr + byte_count);
 
-    auto qword = value.get<uint64_t>().value();
+    auto qword = value->get<uint64_t>().value();
     memcpy(&m_stack_state[ptr], &qword, byte_count);
 }
 
