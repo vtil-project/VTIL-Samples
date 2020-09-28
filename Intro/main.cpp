@@ -15,7 +15,7 @@ int main()
 
 	// the following instruction defines a register. In VTIL, we can define as many registers as we want.
 	//
-	// - vtil::register_virtual means that the register is virtual ie. it is only existent in the VM context
+	// - vtil::register_virtual means that the register is virtual i.e. it is only existent in the VM context
 	// - we get the register id via reg_offs / 8, as in our example VM all registers are 8-byte aligned. This
 	// won't always be the case.
 	// - 64 specifies the register's size. For our example, the register is always 64 bits.

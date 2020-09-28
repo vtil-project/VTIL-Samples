@@ -1,12 +1,12 @@
 # VTIL-Samples
 
-This repository contains a number of samples to get you started with VTILs API.
+This repository contains a number of samples to get you started with VTIL's API.
 
 ## Building (Visual Studio)
 
-Open the project as folder in Visual Studio 2019 and let it generate the CMake files. Once the generation has ended you can launch the examples.  
+Open the project as folder in Visual Studio 2019 and let it generate the CMake files. Once the generation has ended, you can launch the examples.
 
-## Building (macos)
+## Building (MacOS)
 
 First install LLVM 10 and Ninja:
 
@@ -36,12 +36,12 @@ cmake --build .
 
 ### Logger
 
-This example demonstrates VTILs versatile logging capabilities.
+This example demonstrates VTIL's versatile logging capabilities.
 
 ### Intro
 
-A very basic example of VTILs `basic_block` functionality. Based on https://0xnobody.github.io/devirtualization-intro/
+A very basic example of VTIL's `basic_block` functionality. Based on https://0xnobody.github.io/devirtualization-intro/
 
 ### Simplification
 
-A short introduction into assembly simplification using VTILs optimizer passes.
+A short introduction into assembly simplification using VTIL's optimizer passes.
