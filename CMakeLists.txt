@@ -1,16 +1,22 @@
-﻿cmake_minimum_required(VERSION 3.15)
+﻿# A semi-recent version of CMake is required for CPM
+cmake_minimum_required(VERSION 3.15)
 
 project(VTIL-Samples)
 
-include(FetchContent)
+# Enable solution folder support
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-FetchContent_Declare(
-    VTIL-Core
-    GIT_REPOSITORY https://github.com/vtil-project/VTIL-Core
-    GIT_SHALLOW    true
+# https://github.com/TheLartians/CPM.cmake/releases
+include(CPM.cmake)
+
+# Add VTIL-Core dependency
+CPMAddPackage(
+	NAME VTIL-Core
+	GITHUB_REPOSITORY vtil-project/VTIL-Core
+	GIT_TAG d51b7d7426dd79746b7f587c4fac1a3f899d54b1
 )
-FetchContent_MakeAvailable(VTIL-Core)
 
+# Example projects
 add_subdirectory(Logger)
 add_subdirectory(Intro)
 add_subdirectory(Simplification)

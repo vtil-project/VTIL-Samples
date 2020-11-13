@@ -1,7 +1,5 @@
 #include <vtil/vtil>
 
-#pragma comment(linker, "/STACK:67108864")
-
 /*
  * Demonstrates basic simplification of a small "obfuscated" basic block
  * Deobfuscated this code would just be a series of "push N" instructions where N = {0..100}

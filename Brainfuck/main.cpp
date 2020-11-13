@@ -3,8 +3,6 @@
 #include "lifter.hpp"
 #include "vm.hpp"
 
-#pragma comment(linker, "/STACK:67108864")
-
 std::pair<std::string, std::optional<std::string>> handle_arguments(int argc, char* argv[])
 {
     if(argc < 2)
