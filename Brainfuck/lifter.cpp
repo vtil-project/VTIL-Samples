@@ -139,9 +139,9 @@ void lifter::update_branch()
 {
     auto matching_vip = m_branches.back(); m_branches.pop_back();
     auto matching_block = m_block->owner->explored_blocks[matching_vip];
-    matching_block->stream.back().operands[1].imm().u64 = m_vip;
+    matching_block->wback().operands[1].imm().u64 = m_vip;
     //matching_block->fork(m_vip); // link the previously undefined block
-    m_block->stream.back().operands[1].imm().u64 = matching_vip + 1;
+    m_block->wback().operands[1].imm().u64 = matching_vip + 1;
     //m_block->fork(matching_vip + 1); // link the previously undefined block
     m_block->fork(m_block->entry_vip); // link the previously undefined block
 }
