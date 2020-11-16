@@ -16,7 +16,7 @@ namespace bf
     private:
         bool m_debug;
         mutable std::vector<uint8_t> m_stack_state;
-        mutable std::map<vtil::register_desc, uint64_t> m_register_state;
+        mutable vtil::symbolic::context m_context;
 
         vtil::symbolic::expression::reference read_register(const vtil::register_desc& desc) const override;
         void write_register(const vtil::register_desc& desc, vtil::symbolic::expression::reference value) override;
@@ -24,7 +24,7 @@ namespace bf
         vtil::symbolic::expression::reference read_memory(const vtil::symbolic::expression::reference& pointer, size_t byte_count) const override;
         bool write_memory(const vtil::symbolic::expression::reference& pointer, vtil::deferred_value<vtil::symbolic::expression::reference> value, bitcnt_t size) override;
 
-        uint8_t& reference_io_port();
+        vtil::symbolic::expression::reference reference_io_port();
 
         void print();
         void read();

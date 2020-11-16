@@ -4,20 +4,21 @@ using namespace bf;
 
 vm::vm(bool debug) : m_debug(debug)
 {
-    m_register_state[vtil::REG_SP] = 0x0;
+    m_context.write(vtil::REG_SP, 0);
 }
 
 vtil::vm_exit_reason vm::execute(const vtil::instruction& instruction)
 {
     if(m_debug)
     {
-        auto sp_offset = m_register_state[vtil::REG_SP];
+        auto sp_offset = m_context.read(vtil::REG_SP);
         auto sp_value = read_memory(sp_offset, 1)->get<uint8_t>().value();
         vtil::logger::log("%-50s | [SP+%d] => %d\n", instruction, sp_offset, sp_value);
     }
 
     if(*instruction.base == vtil::ins::vemit)
     {
+        puts("vemit");
         auto bf_instruction = instruction.operands[0].imm().u64;
         switch(bf_instruction)
         {
@@ -43,7 +44,7 @@ vtil::vm_exit_reason vm::execute(const vtil::instruction& instruction)
 void vm::execute(const vtil::routine* routine)
 {
     m_stack_state.clear();
-    m_register_state.clear();
+    m_context.reset();
 
     auto it = routine->entry_point->begin();
 
@@ -72,19 +73,19 @@ void vm::execute(const vtil::routine* routine)
 
 vtil::symbolic::expression::reference vm::read_register(const vtil::register_desc& desc) const
 {
-    auto value = m_register_state[desc];
-    return { (value >> desc.bit_offset) & vtil::math::fill(desc.bit_count), desc.bit_count };
+    vtil::logger::log("read %s\n", desc);
+    return m_context.read(desc);
 }
 
 void vm::write_register(const vtil::register_desc& desc, vtil::symbolic::expression::reference value)
 {
-    auto& rvalue = m_register_state[desc];
-    rvalue &= ~desc.get_mask();
-    rvalue |= ((value->get().value() & vtil::math::fill(desc.bit_count)) << desc.bit_offset);
+    vtil::logger::log("write %s\n", desc);
+    m_context.write(desc, value);
 }
 
 vtil::symbolic::expression::reference vm::read_memory(const vtil::symbolic::expression::reference& pointer, size_t byte_count) const
 {
+    vtil::logger::log("pointer %s\n", pointer);
     auto ptr = pointer->get().value();
 
     if(m_stack_state.size() < ptr + byte_count)
@@ -109,14 +110,19 @@ bool vm::write_memory(const vtil::symbolic::expression::reference& pointer, vtil
     return true;
 }
 
-uint8_t& vm::reference_io_port()
+static vtil::register_desc register_cast(x86_reg r)
 {
-    return reinterpret_cast<uint8_t&>(m_register_state[vtil::operand{ X86_REG_RAX }.reg()]);
+    return vtil::register_cast<x86_reg>()(r);
+}
+
+vtil::symbolic::expression::reference vm::reference_io_port()
+{
+    return m_context.read(X86_REG_AL);
 }
 
 void vm::print()
 {
-    vtil::logger::log("%c", reference_io_port());
+    vtil::logger::log("%s", reference_io_port());
 }
 
 void vm::read()

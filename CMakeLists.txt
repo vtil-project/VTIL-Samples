@@ -6,6 +6,18 @@ project(VTIL-Samples)
 # Enable solution folder support
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Lil' hacking never hurt anyone
+#macro(file op)
+#	if(op STREQUAL "GLOB" OR op STREQUAL "GLOB_RECURSE")
+#		set(ARGS ${ARGN})
+#		list(REMOVE_ITEM ARGS CONFIGURE_DEPENDS)
+#		message("file(${ARGS})")
+#		_file(${op} ${ARGS})
+#	else()
+#		_file(${op} ${ARGN})
+#	endif()
+#endmacro()
+
 # https://github.com/TheLartians/CPM.cmake/releases
 include(CPM.cmake)
 
