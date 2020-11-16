@@ -26,7 +26,7 @@ std::pair<std::string, std::optional<std::string>> handle_arguments(int argc, ch
     }
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char** argv)
 {
     auto [program, output] = handle_arguments(argc, argv);
 
@@ -39,6 +39,6 @@ int main(int argc, char* argv[])
 
     auto routine = lifter.get_routine();
 
-    bf::vm vm(true);
+    bf::vm vm(false);
     vm.execute(routine);
 }

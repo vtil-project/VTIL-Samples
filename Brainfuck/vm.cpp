@@ -2,10 +2,7 @@
 
 using namespace bf;
 
-vm::vm(bool debug) : m_debug(debug)
-{
-    m_context.write(vtil::REG_SP, 0);
-}
+vm::vm(bool debug) : m_debug(debug) {}
 
 vtil::vm_exit_reason vm::execute(const vtil::instruction& instruction)
 {
@@ -18,7 +15,6 @@ vtil::vm_exit_reason vm::execute(const vtil::instruction& instruction)
 
     if(*instruction.base == vtil::ins::vemit)
     {
-        puts("vemit");
         auto bf_instruction = instruction.operands[0].imm().u64;
         switch(bf_instruction)
         {
@@ -45,6 +41,7 @@ void vm::execute(const vtil::routine* routine)
 {
     m_stack_state.clear();
     m_context.reset();
+    m_context.write( vtil::REG_SP, 0 );
 
     auto it = routine->entry_point->begin();
 
@@ -73,19 +70,16 @@ void vm::execute(const vtil::routine* routine)
 
 vtil::symbolic::expression::reference vm::read_register(const vtil::register_desc& desc) const
 {
-    vtil::logger::log("read %s\n", desc);
     return m_context.read(desc);
 }
 
 void vm::write_register(const vtil::register_desc& desc, vtil::symbolic::expression::reference value)
 {
-    vtil::logger::log("write %s\n", desc);
-    m_context.write(desc, value);
+    m_context.write(desc, std::move( value ));
 }
 
 vtil::symbolic::expression::reference vm::read_memory(const vtil::symbolic::expression::reference& pointer, size_t byte_count) const
 {
-    vtil::logger::log("pointer %s\n", pointer);
     auto ptr = pointer->get().value();
 
     if(m_stack_state.size() < ptr + byte_count)
@@ -110,23 +104,13 @@ bool vm::write_memory(const vtil::symbolic::expression::reference& pointer, vtil
     return true;
 }
 
-static vtil::register_desc register_cast(x86_reg r)
-{
-    return vtil::register_cast<x86_reg>()(r);
-}
-
-vtil::symbolic::expression::reference vm::reference_io_port()
-{
-    return m_context.read(X86_REG_AL);
-}
-
 void vm::print()
 {
-    vtil::logger::log("%s", reference_io_port());
+    vtil::logger::log( "%c", m_context.read( vtil::register_cast< x86_reg >{}( X86_REG_AL ) )->get<uint64_t>().value_or( 0 ) );
 }
 
 void vm::read()
 {
-    reference_io_port() = getc(stdin);
+    m_context.write( vtil::register_cast< x86_reg >{}( X86_REG_AL ), vtil::symbolic::expression{ getc( stdin ), 8 } );
     std::cin.ignore(INT_MAX, '\n'); // TODO: fix this?
 }

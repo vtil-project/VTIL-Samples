@@ -24,8 +24,6 @@ namespace bf
         vtil::symbolic::expression::reference read_memory(const vtil::symbolic::expression::reference& pointer, size_t byte_count) const override;
         bool write_memory(const vtil::symbolic::expression::reference& pointer, vtil::deferred_value<vtil::symbolic::expression::reference> value, bitcnt_t size) override;
 
-        vtil::symbolic::expression::reference reference_io_port();
-
         void print();
         void read();
     };
