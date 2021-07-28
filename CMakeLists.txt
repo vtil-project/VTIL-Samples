@@ -25,7 +25,7 @@ include(CPM.cmake)
 CPMAddPackage(
 	NAME VTIL-Core
 	GITHUB_REPOSITORY vtil-project/VTIL-Core
-	GIT_TAG d51b7d7426dd79746b7f587c4fac1a3f899d54b1
+	GIT_TAG ff94eef4483b07fbe970b7b80bbfae3b52524f16
 )
 
 # Example projects
