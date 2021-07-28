@@ -45,3 +45,7 @@ A very basic example of VTIL's `basic_block` functionality. Based on https://0xn
 ### Simplification
 
 A short introduction into assembly simplification using VTIL's optimizer passes.
+
+## Brainfuck
+
+A lifter for [brainfuck](https://en.wikipedia.org/wiki/Brainfuck) and an example VM to execute the lifted brainfuck.
